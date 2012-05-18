@@ -12,4 +12,4 @@ palindromeDecision input =
 palindromeLines :: String -> String
 palindromeLines = unlines . (map palindromeDecision) . lines
 
-main = interact $ palindromeLines
+main = interact palindromeLines
