@@ -8,7 +8,8 @@ import Data.List
 dispatch :: [(String, [String] -> IO ())]
 dispatch = [("add", add),
             ("view", view),
-            ("remove", remove)]
+            ("remove", remove),
+            ("bump", bump)]
 
 main = do
     (fileName:command:args) <- getArgs
