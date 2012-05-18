@@ -8,7 +8,7 @@ import Data.List
 dispatch :: [(String, [String] -> IO ())]
 dispatch = [("add", add),
             ("view", view),
-            ("remove", remove),
+            ("remove", modify rm),
             ("bump", bump)]
 
 main = do
@@ -25,6 +25,27 @@ view [fileName] = do
     let todoTasks = lines contents
         numberedTasks = zipWith (\n line -> show n ++ " - " ++ line) [0..] todoTasks
     putStr $ unlines numberedTasks
+
+modify :: ([String] -> Num -> [String]) -> [String] -> IO ()
+modify f [fileName, numberString] = do
+    handle <- openFile fileName ReadMode
+    contents <- hGetContents handle
+
+    let number = read numberString
+        todoTasks = lines contents
+        newTodoItems = f todoTasks number
+
+    (tempName, tempHandle) <- openTempFile "." "temp"
+    hPutStr tempHandle $ unlines newTodoItems
+
+    hClose handle
+    hClose tempHandle
+
+    removeFile fileName
+    renameFile tempName fileName
+
+rm :: [String] -> Num -> [String]
+rm tasks number = delete (tasks !! number) tasks
 
 remove :: [String] -> IO ()
 remove [fileName, numberString] = do
