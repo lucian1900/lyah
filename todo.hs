@@ -8,8 +8,8 @@ import Data.List
 dispatch :: [(String, [String] -> IO ())]
 dispatch = [("add", add),
             ("view", view),
-            ("remove", modify rm),
-            ("bump", bump)]
+            ("remove", modify remove),
+            ("bump", modify bump)]
 
 main = do
     (fileName:command:args) <- getArgs
@@ -26,7 +26,7 @@ view [fileName] = do
         numberedTasks = zipWith (\n line -> show n ++ " - " ++ line) [0..] todoTasks
     putStr $ unlines numberedTasks
 
-modify :: ([String] -> Num -> [String]) -> [String] -> IO ()
+modify :: ([String] -> Int -> [String]) -> [String] -> IO ()
 modify f [fileName, numberString] = do
     handle <- openFile fileName ReadMode
     contents <- hGetContents handle
@@ -44,41 +44,9 @@ modify f [fileName, numberString] = do
     removeFile fileName
     renameFile tempName fileName
 
-rm :: [String] -> Num -> [String]
-rm tasks number = delete (tasks !! number) tasks
+remove :: [String] -> Int -> [String]
+remove tasks number = delete (tasks !! number) tasks
 
-remove :: [String] -> IO ()
-remove [fileName, numberString] = do
-    handle <- openFile fileName ReadMode
-    contents <- hGetContents handle
-
-    let number = read numberString
-        todoTasks = lines contents
-        newTodoItems = delete (todoTasks !! number) todoTasks
-
-    (tempName, tempHandle) <- openTempFile "." "temp"
-    hPutStr tempHandle $ unlines newTodoItems
-
-    hClose handle
-    hClose tempHandle
-
-    removeFile fileName
-    renameFile tempName fileName
-
-bump :: [String] -> IO ()
-bump [fileName, numberString] = do
-    handle <- openFile fileName ReadMode
-    contents <- hGetContents handle
-
-    let todoTasks = lines contents
-        task = todoTasks !! read numberString
-        newTodoItems = task : (delete task todoTasks)
-
-    (tempName, tempHandle) <- openTempFile "." "temp"
-    hPutStr tempHandle $ unlines newTodoItems
-
-    hClose handle
-    hClose tempHandle
-
-    removeFile fileName
-    renameFile tempName fileName
+bump :: [String] -> Int -> [String]
+bump tasks number = let task = tasks !! number in
+    task : (delete task tasks)
