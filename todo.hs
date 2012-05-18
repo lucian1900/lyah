@@ -6,12 +6,14 @@ import System.IO
 import Data.List
 
 dispatch :: [(String, [String] -> IO ())]
-dispatch = [("add", add), ("view", view), ("remove", remove)]
+dispatch = [("add", add),
+            ("view", view),
+            ("remove", remove)]
 
 main = do
-    (command:args) <- getArgs
+    (fileName:command:args) <- getArgs
     let (Just action) = lookup command dispatch
-    action args
+    action $ fileName:args
 
 add :: [String] -> IO ()
 add [fileName, todoItem] = appendFile fileName (todoItem ++ "\n")
@@ -31,6 +33,24 @@ remove [fileName, numberString] = do
     let number = read numberString
         todoTasks = lines contents
         newTodoItems = delete (todoTasks !! number) todoTasks
+
+    (tempName, tempHandle) <- openTempFile "." "temp"
+    hPutStr tempHandle $ unlines newTodoItems
+
+    hClose handle
+    hClose tempHandle
+
+    removeFile fileName
+    renameFile tempName fileName
+
+bump :: [String] -> IO ()
+bump [fileName, numberString] = do
+    handle <- openFile fileName ReadMode
+    contents <- hGetContents handle
+
+    let todoTasks = lines contents
+        task = todoTasks !! read numberString
+        newTodoItems = task : (delete task todoTasks)
 
     (tempName, tempHandle) <- openTempFile "." "temp"
     hPutStr tempHandle $ unlines newTodoItems
