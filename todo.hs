@@ -27,7 +27,6 @@ remove :: [String] -> IO ()
 remove [fileName, numberString] = do
     handle <- openFile fileName ReadMode
     contents <- hGetContents handle
-    hClose handle
 
     let number = read numberString
         todoTasks = lines contents
@@ -36,6 +35,7 @@ remove [fileName, numberString] = do
     (tempName, tempHandle) <- openTempFile "." "temp"
     hPutStr tempHandle $ unlines newTodoItems
 
+    hClose handle
     hClose tempHandle
 
     removeFile fileName
