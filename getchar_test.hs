@@ -4,6 +4,6 @@ main = do
 	c <- getChar
 	if c /= ' '
 		then do
-			putchar c
+			putChar c
 			main
 		else return ()
