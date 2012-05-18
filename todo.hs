@@ -4,6 +4,7 @@ import System.Environment
 import System.Directory
 import System.IO
 import Data.List
+import Data.Maybe
 
 dispatch :: [(String, [String] -> IO ())]
 dispatch = [("add", add),
@@ -13,8 +14,11 @@ dispatch = [("add", add),
 
 main = do
     (fileName:command:args) <- getArgs
-    let (Just action) = lookup command dispatch
+    let action = fromMaybe wrong (lookup command dispatch)
     action $ fileName:args
+
+wrong :: [String] -> IO ()
+wrong args = print $ "Unexpected args: " ++ show args
 
 add :: [String] -> IO ()
 add [fileName, todoItem] = appendFile fileName (todoItem ++ "\n")
