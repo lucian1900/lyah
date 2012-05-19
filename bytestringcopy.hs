@@ -4,4 +4,10 @@ import System.Environment (getArgs)
 import qualified Data.ByteString.Lazy as B
 
 main = do
-    (file1:file2:_) <- getArgs
+    (source:dest:_) <- getArgs
+    copyFile source dest
+
+copyFile :: FilePath -> FilePath -> IO ()
+copyFile source dest = do
+    contents <- B.readFile source
+    B.writeFile dest source
