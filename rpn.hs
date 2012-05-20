@@ -1,5 +1,3 @@
-#!/usr/bin/runhaskell
-
 solveRPN :: String -> Float
 solveRPN = head . foldl compute [] . words
     where compute (x:y:ys) "*" = (x * y):ys
