@@ -10,4 +10,4 @@ main = do
 copyFile :: FilePath -> FilePath -> IO ()
 copyFile source dest = do
     contents <- B.readFile source
-    B.writeFile dest source
+    B.writeFile dest contents
